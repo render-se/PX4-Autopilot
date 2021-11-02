@@ -70,6 +70,7 @@ public:
 
 	typedef struct {
 		RotorGeometry rotors[NUM_ROTORS_MAX];
+		int num_rotors{0};
 	} MultirotorGeometry;
 
 	static int computeEffectivenessMatrix(const MultirotorGeometry &geometry,
@@ -153,6 +154,8 @@ private:
 		(ParamFloat<px4::params::CA_MC_R7_AY>) _param_ca_mc_r7_ay,
 		(ParamFloat<px4::params::CA_MC_R7_AZ>) _param_ca_mc_r7_az,
 		(ParamFloat<px4::params::CA_MC_R7_CT>) _param_ca_mc_r7_ct,
-		(ParamFloat<px4::params::CA_MC_R7_KM>) _param_ca_mc_r7_km
+		(ParamFloat<px4::params::CA_MC_R7_KM>) _param_ca_mc_r7_km,
+
+		(ParamInt<px4::params::CA_MC_R_COUNT>) _param_ca_mc_r_count
 	)
 };
