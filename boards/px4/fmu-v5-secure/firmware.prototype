@@ -1,7 +1,7 @@
 {
     "board_id": 50,
     "magic": "PX4FWv1",
-    "description": "Firmware for the PX4FMUv5 board",
+    "description": "Secured Firmware for the PX4FMUv5 board",
     "image": "",
     "build_time": 0,
     "summary": "PX4FMUv5",
