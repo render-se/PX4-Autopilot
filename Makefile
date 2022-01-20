@@ -519,6 +519,16 @@ distclean: gazeboclean
 	@rm -rf "$(SRC_DIR)/build"
 	@git clean --force -X "$(SRC_DIR)/msg/" "$(SRC_DIR)/platforms/" "$(SRC_DIR)/posix-configs/" "$(SRC_DIR)/ROMFS/" "$(SRC_DIR)/src/" "$(SRC_DIR)/test/" "$(SRC_DIR)/Tools/"
 
+# Secure Builds
+# --------------------------------------------------------------------
+.PHONY: cppcheck_secure
+
+# TODO: Fix cppcheck errors then try --enable=warning,performance,portability,style,unusedFunction or --enable=all
+cppcheck_secure: mro_ctrl-zero-h7_default
+	@mkdir -p "$(SRC_DIR)"/build/cppcheck_secure
+	@cppcheck -i"$(SRC_DIR)"/src/examples --enable=performance --std=c++14 --std=c99 --std=posix --project="$(SRC_DIR)"/build/mro_ctrl-zero-h7_default/compile_commands.json --xml-version=2 2> "$(SRC_DIR)"/build/cppcheck_secure/cppcheck-result.xml > /dev/null
+	@cppcheck-htmlreport --source-encoding=ascii --file="$(SRC_DIR)"/build/cppcheck_secure/cppcheck-result.xml --report-dir="$(SRC_DIR)"/build/cppcheck_secure --source-dir="$(SRC_DIR)"/src/
+
 # Help / Error / Misc
 # --------------------------------------------------------------------
 
