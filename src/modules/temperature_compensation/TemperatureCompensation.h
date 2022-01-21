@@ -37,7 +37,7 @@
  * Sensor correction methods
  *
  * @author Paul Riseborough <gncsolns@gmail.com>
- * @author Beat Küng <beat-kueng@gmx.net>
+ * @author Beat Kueng <beat-kueng@gmx.net>
  */
 
 #pragma once
