@@ -521,12 +521,28 @@ distclean: gazeboclean
 
 # Secure Builds
 # --------------------------------------------------------------------
-.PHONY: cppcheck_secure tests_secure coverage_secure
+.PHONY: cppcheck_secure coverage_secure scan-build_secure tests_secure
 
 cppcheck_secure: mro_ctrl-zero-h7_default
 	@mkdir -p "$(SRC_DIR)"/build/cppcheck_secure
 	@cppcheck -i"$(SRC_DIR)"/src/examples --enable=all --std=c++14 --std=c99 --std=posix --project="$(SRC_DIR)"/build/mro_ctrl-zero-h7_default/compile_commands.json --xml-version=2 2> "$(SRC_DIR)"/build/cppcheck_secure/cppcheck-result.xml > /dev/null
 	@cppcheck-htmlreport --source-encoding=ascii --file="$(SRC_DIR)"/build/cppcheck_secure/cppcheck-result.xml --report-dir="$(SRC_DIR)"/build/cppcheck_secure --source-dir="$(SRC_DIR)"/src/
+
+coverage_secure:
+	@$(MAKE) clean
+	@$(MAKE) --no-print-directory tests_secure PX4_CMAKE_BUILD_TYPE=Coverage
+	@mkdir -p coverage
+	@lcov --directory build/mro_sitl_test --base-directory build/mro_sitl_test --gcov-tool gcov --capture -o coverage/lcov.info
+
+scan-build_secure:
+	@export CCC_CC=clang
+	@export CCC_CXX=clang++
+	@rm -rf "$(SRC_DIR)"/build/mro_sitl_default-scan-build
+	@rm -rf "$(SRC_DIR)"/build/scan-build/report_latest
+	@mkdir -p "$(SRC_DIR)"/build/mro_sitl_default-scan-build
+	@cd "$(SRC_DIR)"/build/mro_sitl_default-scan-build && scan-build cmake "$(SRC_DIR)" -GNinja -DCONFIG=mro_sitl_default
+	@scan-build -o "$(SRC_DIR)"/build/scan-build cmake --build "$(SRC_DIR)"/build/mro_sitl_default-scan-build
+	@find "$(SRC_DIR)"/build/scan-build -maxdepth 1 -mindepth 1 -type d -exec cp -r "{}" "$(SRC_DIR)"/build/scan-build/report_latest \;
 
 tests_secure:
 	$(eval CMAKE_ARGS += -DTESTFILTER=$(TESTFILTER))
@@ -534,12 +550,6 @@ tests_secure:
 	$(eval ASAN_OPTIONS += color=always:check_initialization_order=1:detect_stack_use_after_return=1)
 	$(eval UBSAN_OPTIONS += color=always)
 	$(call cmake-build,mro_sitl_test)
-
-coverage_secure:
-	@$(MAKE) clean
-	@$(MAKE) --no-print-directory tests_secure PX4_CMAKE_BUILD_TYPE=Coverage
-	@mkdir -p coverage
-	@lcov --directory build/mro_sitl_test --base-directory build/mro_sitl_test --gcov-tool gcov --capture -o coverage/lcov.info
 
 # Help / Error / Misc
 # --------------------------------------------------------------------
