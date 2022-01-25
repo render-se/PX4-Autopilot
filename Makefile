@@ -521,12 +521,25 @@ distclean: gazeboclean
 
 # Secure Builds
 # --------------------------------------------------------------------
-.PHONY: cppcheck_secure
+.PHONY: cppcheck_secure tests_secure coverage_secure
 
 cppcheck_secure: mro_ctrl-zero-h7_default
 	@mkdir -p "$(SRC_DIR)"/build/cppcheck_secure
 	@cppcheck -i"$(SRC_DIR)"/src/examples --enable=all --std=c++14 --std=c99 --std=posix --project="$(SRC_DIR)"/build/mro_ctrl-zero-h7_default/compile_commands.json --xml-version=2 2> "$(SRC_DIR)"/build/cppcheck_secure/cppcheck-result.xml > /dev/null
 	@cppcheck-htmlreport --source-encoding=ascii --file="$(SRC_DIR)"/build/cppcheck_secure/cppcheck-result.xml --report-dir="$(SRC_DIR)"/build/cppcheck_secure --source-dir="$(SRC_DIR)"/src/
+
+tests_secure:
+	$(eval CMAKE_ARGS += -DTESTFILTER=$(TESTFILTER))
+	$(eval ARGS += test_results)
+	$(eval ASAN_OPTIONS += color=always:check_initialization_order=1:detect_stack_use_after_return=1)
+	$(eval UBSAN_OPTIONS += color=always)
+	$(call cmake-build,mro_sitl_test)
+
+coverage_secure:
+	@$(MAKE) clean
+	@$(MAKE) --no-print-directory tests_secure PX4_CMAKE_BUILD_TYPE=Coverage
+	@mkdir -p coverage
+	@lcov --directory build/mro_sitl_test --base-directory build/mro_sitl_test --gcov-tool gcov --capture -o coverage/lcov.info
 
 # Help / Error / Misc
 # --------------------------------------------------------------------
