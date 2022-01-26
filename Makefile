@@ -521,7 +521,15 @@ distclean: gazeboclean
 
 # Secure Builds
 # --------------------------------------------------------------------
-.PHONY: cppcheck_secure coverage_secure scan-build_secure tests_secure
+.PHONY: clang_secure clang-tidy_secure coverage_secure cppcheck_secure scan-build_secure tests_secure
+
+clang_secure:
+	@mkdir -p "$(SRC_DIR)"/build/clang_secure-clang
+	@cd "$(SRC_DIR)"/build/clang_secure-clang && cmake "$(SRC_DIR)" $(CMAKE_ARGS) -G"$(PX4_CMAKE_GENERATOR)" -DCONFIG=mro_sitl_default -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+	@$(PX4_MAKE) -C "$(SRC_DIR)"/build/clang_secure-clang
+
+clang-tidy_secure: clang_secure
+	@cd "$(SRC_DIR)"/build/clang_secure-clang && "$(SRC_DIR)"/Tools/run-clang-tidy.py -header-filter=".*\.hpp" -j$(j_clang_tidy) -p .
 
 cppcheck_secure: mro_ctrl-zero-h7_default
 	@mkdir -p "$(SRC_DIR)"/build/cppcheck_secure
