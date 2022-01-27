@@ -1,0 +1,41 @@
+name: RSE Checks and Targets
+
+on:
+  push:
+    branches:
+      - mro_h7_secure
+    pull-request: '*'
+jobs:
+  clang-tidy:
+    name: Run clang-tidy
+    runs-on: ubuntu-20.04
+    container:
+      image: ghcr.io/render-se/px4-clang:latest
+      credentials:
+        username: ${{ github.actor }}
+        password: password: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Run clang-tidy
+        run: make clang-tidy_secure
+
+  scan-build:
+    name: Run scan-build
+    runs-on: ubuntu-20.04
+      image: ghcr.io/render-se/px4-base:latest
+      credentials:
+        username: ${{ github.actor }}
+        password: password: ${{ secrets.GITHUB_TOKEN }}
+  cppcheck:
+    name: Run cppcheck
+    runs-on: ubuntu-20.04
+      image: ghcr.io/render-se/px4-base:latest
+      credentials:
+        username: ${{ github.actor }}
+        password: password: ${{ secrets.GITHUB_TOKEN }}
+  package:
+    name: Package Artifacts
+    runs-on: ubuntu-20.04
+    needs: [clang-tidy, scan-build, cppcheck]
