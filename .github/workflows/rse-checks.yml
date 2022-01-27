@@ -13,7 +13,7 @@ jobs:
       image: ghcr.io/render-se/px4-clang:latest
       credentials:
         username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+        password: ${{ secrets.ghcr }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -27,7 +27,7 @@ jobs:
       image: ghcr.io/render-se/px4-base:latest
       credentials:
         username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+        password: ${{ secrets.ghcr }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -41,7 +41,7 @@ jobs:
       image: ghcr.io/render-se/px4-base:latest
       credentials:
         username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+        password: ${{ secrets.ghcr }}
     steps:
       - uses: actions/checkout@v2
         with:
