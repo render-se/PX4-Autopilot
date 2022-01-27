@@ -28,6 +28,12 @@ jobs:
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Run scan-build
+        run: make scan-build_secure
   cppcheck:
     name: Run cppcheck
     runs-on: ubuntu-20.04
@@ -36,7 +42,13 @@ jobs:
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
-  package:
-    name: Package Artifacts
-    runs-on: ubuntu-20.04
-    needs: [clang-tidy, scan-build, cppcheck]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Run cppcheck
+        run: make cppcheck_secure
+#  package:
+#name: Package Artifacts
+#runs-on: ubuntu-20.04
+#needs: [clang-tidy, scan-build, cppcheck]
