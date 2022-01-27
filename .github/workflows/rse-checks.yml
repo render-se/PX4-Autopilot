@@ -19,7 +19,7 @@ jobs:
   scan-build:
     name: Run scan-build
     runs-on: ubuntu-20.04
-    container: ghcr.io/render-se/px4-base:latest
+    container: ghcr.io/render-se/px4-clang:latest
     steps:
       - uses: actions/checkout@v2
         with:
@@ -29,7 +29,7 @@ jobs:
   cppcheck:
     name: Run cppcheck
     runs-on: ubuntu-20.04
-    container: ghcr.io/render-se/px4-base:latest
+    container: ghcr.io/render-se/px4-nuttx:latest
     steps:
       - uses: actions/checkout@v2
         with:
