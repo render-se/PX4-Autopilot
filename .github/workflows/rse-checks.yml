@@ -54,7 +54,12 @@ jobs:
         with:
           name: cppcheck-logs
           path: cppcheck.tar.gz
-#  package:
-#name: Package Artifacts
-#runs-on: ubuntu-20.04
-#needs: [clang-tidy, scan-build, cppcheck]
+  package:
+    name: Package Artifacts
+    runs-on: ubuntu-20.04
+    needs: [clang-tidy, scan-build, cppcheck]
+    steps:
+      - uses: actions/download-artifact@v2
+      - name: Display structure of downloaded files
+          run: ls -R 
+
