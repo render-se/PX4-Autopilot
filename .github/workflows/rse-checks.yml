@@ -12,6 +12,9 @@ jobs:
     container: ghcr.io/render-se/px4-clang:latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Generate Targets
       - name: Run clang-tidy
         run: make clang-tidy_secure
   scan-build:
