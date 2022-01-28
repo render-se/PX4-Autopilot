@@ -15,7 +15,13 @@ jobs:
         with:
           fetch-depth: 0
       - name: Run clang-tidy
-        run: make clang-tidy_secure
+        run: |
+          make clang-tidy_secure > clang-tidy.txt
+          tar -czf clang-tidy.tar.gz clang-tidy.txt
+      - uses: actions/upload-artifact@v2
+        with:
+          name: clang-tidy-logs
+          path: clang-tidy.tar.gz
   scan-build:
     name: Run scan-build
     runs-on: ubuntu-20.04
@@ -25,7 +31,13 @@ jobs:
         with:
           fetch-depth: 0
       - name: Run scan-build
-        run: make scan-build_secure
+        run: |
+          make scan-build_secure
+          tar -czf scan-build.tar.gz build/scan-build/report_latest/
+      - uses: actions/upload-artifact@v2
+        with:
+          name: scan-build-logs
+          path: scan-build.tar.gz
   cppcheck:
     name: Run cppcheck
     runs-on: ubuntu-20.04
