@@ -22,6 +22,8 @@ jobs:
     container: ghcr.io/render-se/px4-clang:latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - name: Run scan-build
         run: make scan-build_secure
   cppcheck:
@@ -30,6 +32,8 @@ jobs:
     container: ghcr.io/render-se/px4-nuttx:latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - name: Run cppcheck
         run: make cppcheck_secure
 #  package:
