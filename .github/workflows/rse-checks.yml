@@ -9,7 +9,7 @@ jobs:
   clang-tidy:
     name: Run clang-tidy
     runs-on: ubuntu-20.04
-    container: ghcr.io/render-se/px4-clang:latest
+    container: px4io/px4-dev-clang:2021-09-08
     steps:
       - uses: actions/checkout@v2
         with:
@@ -47,7 +47,13 @@ jobs:
         with:
           fetch-depth: 0
       - name: Run cppcheck
-        run: make cppcheck_secure
+        run: | 
+          make cppcheck_secure
+          tar -czf cppcheck.tar.gz build/cppcheck_secure/
+      - uses: actions/upload-artifact@v2
+        with:
+          name: cppcheck-logs
+          path: cppcheck.tar.gz
 #  package:
 #name: Package Artifacts
 #runs-on: ubuntu-20.04
