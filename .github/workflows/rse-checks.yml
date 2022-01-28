@@ -8,7 +8,7 @@ jobs:
   build-firmware:
     name: Build MRO-H7 Firmware
     runs-on: ubuntu-20.04
-    container: ghcr.io/render-se/px4-clang:latest
+    container: ghcr.io/render-se/px4-nuttx:latest
     steps:
       - uses: actions/checkout@v2
         with:
@@ -18,7 +18,10 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: firmware
-          path: build/mro_ctrl-zero-h7_default/mro_ctrl-zero-h7_default.px4
+          path: |
+            build/mro_ctrl-zero-h7_default/mro_ctrl-zero-h7_default.px4
+            build/mro_ctrl-zero-h7_default/mro_ctrl-zero-h7_default.bin
+            build/mro_ctrl-zero-h7_default/mro_ctrl-zero-h7_default.elf
   clang-tidy:
     name: Run clang-tidy
     runs-on: ubuntu-20.04
@@ -54,7 +57,7 @@ jobs:
   functional-tests:
     name: Functional Tests
     runs-on: ubuntu-20.04
-    container: ghcr.io/render-se/px4-nuttx:latest
+    container: ghcr.io/render-se/px4-base:latest
     steps:
       - uses: actions/checkout@v2
         with:
@@ -87,7 +90,7 @@ jobs:
   unit-tests:
     name: Run Unit Tests
     runs-on: ubuntu-20.04
-    container: ghcr.io/render-se/px4-clang:latest
+    container: ghcr.io/render-se/px4-base:latest
     steps:
       - uses: actions/checkout@v2
         with:
@@ -101,18 +104,6 @@ jobs:
         with:
           name: unit-tests
           path: unit-tests.tar.gz
-  package-firmware:
-    name: Package Firmware
-    runs-on: ubuntu-20.04
-    needs: build-firmware
-    steps:
-      - uses: actions/download-artifact@v2
-        with:
-          name: build-firmware
-      - uses: actions/upload-artifact@v2
-        with:
-          name: firmware
-          path: ./firmware/mro_ctrl-zero-h7_default.px4
   package-tests:
     name: Package Tests
     runs-on: ubuntu-20.04
