@@ -4,8 +4,21 @@ on:
   push:
     branches:
       - mro_h7_secure
-    pull-request: '*'
 jobs:
+  build-firmware:
+    name: Build MRO-H7 Firmware
+    runs-on: ubuntu-20.04
+    container: ghcr.io/render-se/px4-clang:latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Run Firmware Build
+        run: make mro_ctrl-zero-h7
+      - uses: actions/upload-artifact@v2
+        with:
+          name: firmware
+          path: build/mro_ctrl-zero-h7_default/mro_ctrl-zero-h7_default.px4
   clang-tidy:
     name: Run clang-tidy
     runs-on: ubuntu-20.04
@@ -20,8 +33,41 @@ jobs:
           tar -czf clang-tidy.tar.gz clang-tidy.txt
       - uses: actions/upload-artifact@v2
         with:
-          name: clang-tidy-logs
+          name: clang-tidy
           path: clang-tidy.tar.gz
+  cppcheck:
+    name: Run cppcheck
+    runs-on: ubuntu-20.04
+    container: ghcr.io/render-se/px4-nuttx:latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Run cppcheck
+        run: |
+          make cppcheck_secure
+          tar -czf cppcheck.tar.gz build/cppcheck_secure/
+      - uses: actions/upload-artifact@v2
+        with:
+          name: cppcheck
+          path: cppcheck.tar.gz
+  functional-tests:
+    name: Functional Tests
+    runs-on: ubuntu-20.04
+    container: ghcr.io/render-se/px4-nuttx:latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Run Functional Tests
+        run: |
+          make TESTFILTER=functional tests
+          make TESTFILTER=functional tests > functional-test-results.txt 2>&1
+          tar -czf functional-tests.tar.gz functional-test-results.txt
+      - uses: actions/upload-artifact@v2
+        with:
+          name: functional-tests
+          path: functional-tests.tar.gz
   scan-build:
     name: Run scan-build
     runs-on: ubuntu-20.04
@@ -36,30 +82,46 @@ jobs:
           tar -czf scan-build.tar.gz build/scan-build/report_latest/
       - uses: actions/upload-artifact@v2
         with:
-          name: scan-build-logs
+          name: scan-build
           path: scan-build.tar.gz
-  cppcheck:
-    name: Run cppcheck
+  unit-tests:
+    name: Run Unit Tests
     runs-on: ubuntu-20.04
-    container: ghcr.io/render-se/px4-nuttx:latest
+    container: ghcr.io/render-se/px4-clang:latest
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - name: Run cppcheck
-        run: | 
-          make cppcheck_secure
-          tar -czf cppcheck.tar.gz build/cppcheck_secure/
+      - name: Run Unit Tests
+        run: |
+          make TESTFILTER=unit tests
+          make TESTFILTER=unit tests > unit-test-results.txt 2>&1
+          tar -czf unit-tests.tar.gz unit-test-results.txt
       - uses: actions/upload-artifact@v2
         with:
-          name: cppcheck-logs
-          path: cppcheck.tar.gz
-  package:
-    name: Package Artifacts
+          name: unit-tests
+          path: unit-tests.tar.gz
+  package-firmware:
+    name: Package Firmware
     runs-on: ubuntu-20.04
-    needs: [clang-tidy, scan-build, cppcheck]
+    needs: build-firmware
     steps:
       - uses: actions/download-artifact@v2
-      - name: Display structure of downloaded files
-        run: ls -R 
-
+        with:
+          name: build-firmware
+      - uses: actions/upload-artifact@v2
+        with:
+          name: firmware
+          path: ./firmware/mro_ctrl-zero-h7_default.px4
+  package-tests:
+    name: Package Tests
+    runs-on: ubuntu-20.04
+    needs: [clang-tidy, cppcheck, functional-tests, scan-build, unit-tests]
+    steps:
+      - uses: actions/download-artifact@v2
+      - name: Create Test Results
+        run: tar -czf test-results.tar.gz ./clang-tidy/clang-tidy.tar.gz ./cppcheck/cppcheck.tar.gz ./functional-tests/functional-tests.tar.gz ./scan-build/scan-build.tar.gz ./unit-tests/unit-tests.tar.gz
+      - uses: actions/upload-artifact@v2
+        with:
+          name: test-results
+          path: test-results.tar.gz
