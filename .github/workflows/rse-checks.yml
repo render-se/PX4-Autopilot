@@ -3,10 +3,13 @@ name: RSE Checks and Targets
 on:
   push:
     branches:
-      - mro_h7_secure
+    - 'master'
+  pull_request:
+    branches:
+    - '*'
 jobs:
   build-firmware:
-    name: Build MRO-H7 Firmware
+    name: MRO-H7 Firmware
     runs-on: ubuntu-20.04
     container: ghcr.io/render-se/px4-nuttx:latest
     steps:
@@ -23,7 +26,7 @@ jobs:
             build/mro_ctrl-zero-h7_default/mro_ctrl-zero-h7_default.bin
             build/mro_ctrl-zero-h7_default/mro_ctrl-zero-h7_default.elf
   clang-tidy:
-    name: Run clang-tidy
+    name: clang-tidy
     runs-on: ubuntu-20.04
     container: ghcr.io/render-se/px4-clang:latest
     steps:
@@ -39,7 +42,7 @@ jobs:
           name: clang-tidy
           path: clang-tidy.tar.gz
   cppcheck:
-    name: Run cppcheck
+    name: cppcheck
     runs-on: ubuntu-20.04
     container: ghcr.io/render-se/px4-nuttx:latest
     steps:
@@ -72,7 +75,7 @@ jobs:
           name: functional-tests
           path: functional-tests.tar.gz
   scan-build:
-    name: Run scan-build
+    name: scan-build
     runs-on: ubuntu-20.04
     container: ghcr.io/render-se/px4-clang:latest
     steps:
@@ -88,7 +91,7 @@ jobs:
           name: scan-build
           path: scan-build.tar.gz
   unit-tests:
-    name: Run Unit Tests
+    name: Unit Tests
     runs-on: ubuntu-20.04
     container: ghcr.io/render-se/px4-base:latest
     steps:
