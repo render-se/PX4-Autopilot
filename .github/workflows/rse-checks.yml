@@ -9,7 +9,7 @@ jobs:
   clang-tidy:
     name: Run clang-tidy
     runs-on: ubuntu-20.04
-    container: px4io/px4-dev-clang:2021-09-08
+    container: ghcr.io/render-se/px4-clang:latest
     steps:
       - uses: actions/checkout@v2
         with:
