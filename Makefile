@@ -534,7 +534,7 @@ clang-tidy_secure: clang_secure
 cppcheck_secure: mro_ctrl-zero-h7_default
 	@mkdir -p "$(SRC_DIR)"/build/cppcheck_secure
 	@cppcheck -i"$(SRC_DIR)"/src/examples --enable=all --std=c++14 --std=c99 --std=posix --project="$(SRC_DIR)"/build/mro_ctrl-zero-h7_default/compile_commands.json --xml-version=2 2> "$(SRC_DIR)"/build/cppcheck_secure/cppcheck-result.xml > /dev/null
-	@cppcheck-htmlreport --source-encoding=ascii --file="$(SRC_DIR)"/build/cppcheck_secure/cppcheck-result.xml --report-dir="$(SRC_DIR)"/build/cppcheck_secure --source-dir="$(SRC_DIR)"/src/
+	@cppcheck-htmlreport --source-encoding=utf-8 --file="$(SRC_DIR)"/build/cppcheck_secure/cppcheck-result.xml --report-dir="$(SRC_DIR)"/build/cppcheck_secure --source-dir="$(SRC_DIR)"/src/
 
 coverage_secure:
 	@$(MAKE) clean
