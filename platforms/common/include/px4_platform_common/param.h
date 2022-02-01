@@ -73,7 +73,7 @@ inline static param_t param_handle(px4::params p)
 
 // Define a list of parameters. This macro also creates code to update parameters.
 // If you get a compile error like:
-//   error: virtual function 'virtual void <class>::updateParamsImpl()'
+//   error: virtual function ‘virtual void <class>::updateParamsImpl()’
 // It means you have a custom inheritance tree (at least one class with params that inherits from another
 // class with params) and you need to use DEFINE_PARAMETERS_CUSTOM_PARENT() for **all** classes in
 // that tree.

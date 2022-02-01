@@ -35,7 +35,7 @@
  * @file mavlink_shell.cpp
  * A shell to be used via MAVLink
  *
- * @author Beat Kueng <beat-kueng@gmx.net>
+ * @author Beat Küng <beat-kueng@gmx.net>
  */
 
 #include "mavlink_shell.h"

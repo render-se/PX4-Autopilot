@@ -309,7 +309,7 @@ void Ekf::predictState()
  * current time horizon so that the INS states track the EKF states at the delayed fusion time horizon.
  * The inspiration for using a complementary filter to correct for time delays in the EKF
  * is based on the work by A Khosravian:
- * "Recursive Attitude Estimation in the Presence of Multi-rate and Multi-delay Vector Measurements"
+ * “Recursive Attitude Estimation in the Presence of Multi-rate and Multi-delay Vector Measurements”
  * A Khosravian, J Trumpf, R Mahony, T Hamel, Australian National University
 */
 void Ekf::calculateOutputStates(const imuSample &imu)

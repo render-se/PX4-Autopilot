@@ -342,7 +342,7 @@ public:
 	/**
 	  * Computes the quaternion exponential of the 3D vector u
 	  * as proposed in
-	  * [1] Sveier A, Sjoberg AM, Egeland O. "Applied Runge-Kutta-Munthe-Kaas Integration
+	  * [1] Sveier A, Sjøberg AM, Egeland O. "Applied Runge–Kutta–Munthe-Kaas Integration
 	  *     for the Quaternion Kinematics".Journal of Guidance, Control, and Dynamics. 2019
 	  *
 	  * return a quaternion computed as
@@ -392,7 +392,7 @@ public:
 
 	/** inverse right Jacobian of the quaternion logarithm u
 	  * equation (20) in reference
-	  * [1] Sveier A, Sjoeberg AM, Egeland O. "Applied Runge-Kutta-Munthe-Kaas Integration
+	  * [1] Sveier A, Sjøberg AM, Egeland O. "Applied Runge–Kutta–Munthe-Kaas Integration
 	  *     for the Quaternion Kinematics".Journal of Guidance, Control, and Dynamics. 2019
 	  *
 	  * This can be used to update a quaternion kinematic cleanly
