@@ -9,7 +9,7 @@ on:
     - '*'
 jobs:
   build-firmware:
-    name: MRO-H7 Firmware
+    name: PX4v5 Firmware
     runs-on: ubuntu-20.04
     container: ghcr.io/render-se/px4-nuttx:latest
     steps:
@@ -17,14 +17,14 @@ jobs:
         with:
           fetch-depth: 0
       - name: Run Firmware Build
-        run: make mro_ctrl-zero-h7
+        run: make px4_fmu-v5_default
       - uses: actions/upload-artifact@v2
         with:
           name: firmware
           path: |
-            build/mro_ctrl-zero-h7_default/mro_ctrl-zero-h7_default.px4
-            build/mro_ctrl-zero-h7_default/mro_ctrl-zero-h7_default.bin
-            build/mro_ctrl-zero-h7_default/mro_ctrl-zero-h7_default.elf
+            build/px4_fmu-v5_default/px4_fmu-v5_default.px4
+            build/px4_fmu-v5_default/px4_fmu-v5_default.bin
+            build/px4_fmu-v5_default/px4_fmu-v5_default.elf
   clang-tidy:
     name: clang-tidy
     runs-on: ubuntu-20.04
