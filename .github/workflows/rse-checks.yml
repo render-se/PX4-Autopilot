@@ -9,22 +9,40 @@ on:
     - '*'
 jobs:
   build-firmware:
-    name: PX4v5 Firmware
+    name: Build Firmwares
     runs-on: ubuntu-20.04
     container: ghcr.io/render-se/px4-nuttx:latest
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - name: Run Firmware Build
+      - name: FMUv5 Build
         run: make px4_fmu-v5_default
-      - uses: actions/upload-artifact@v2
+      - name: Bluecube Build
+        run: make cubepilot_cubeorange_default
+      - name: mRo Control Zero H7 Build
+        run: make mro_ctrl-zero-h7_default
+      - uses: actions/upload-artifact@v3
         with:
-          name: firmware
+          name: px4-fmuv5-firmware
           path: |
             build/px4_fmu-v5_default/px4_fmu-v5_default.px4
             build/px4_fmu-v5_default/px4_fmu-v5_default.bin
             build/px4_fmu-v5_default/px4_fmu-v5_default.elf
+      - uses: actions/upload-artifact@v3
+        with:
+          name: bluecube-firmware
+          path: |
+            build/cubepilot_cubeorange_default/cubepilot_cubeorange_default.px4
+            build/cubepilot_cubeorange_default/cubepilot_cubeorange_default.bin
+            build/cubepilot_cubeorange_default/cubepilot_cubeorange_default.elf
+      - uses: actions/upload-artifact@v3
+        with:
+          name: mro-h7-firmware
+          path: |
+            build/mro_ctrl-zero-h7_default/mro_ctrl-zero-h7_default.px4
+            build/mro_ctrl-zero-h7_default/mro_ctrl-zero-h7_default.bin
+            build/mro_ctrl-zero-h7_default/mro_ctrl-zero-h7_default.elf
   clang-tidy:
     name: clang-tidy
     runs-on: ubuntu-20.04
