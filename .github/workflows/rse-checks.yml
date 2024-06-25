@@ -1,0 +1,139 @@
+name: RSE Checks and Targets
+
+on:
+  push:
+    branches:
+    - 'master'
+  pull_request:
+    branches:
+    - '*'
+jobs:
+  build-firmware:
+    name: Build Firmwares
+    runs-on: ubuntu-20.04
+    container: ghcr.io/render-se/px4-nuttx:latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: FMUv5 Build
+        run: make px4_fmu-v5_default
+      - name: Bluecube Build
+        run: make cubepilot_cubeorange_default
+      - name: mRo Control Zero H7 Build
+        run: make mro_ctrl-zero-h7_default
+      - uses: actions/upload-artifact@v3
+        with:
+          name: px4-fmuv5-firmware
+          path: |
+            build/px4_fmu-v5_default/px4_fmu-v5_default.px4
+            build/px4_fmu-v5_default/px4_fmu-v5_default.bin
+            build/px4_fmu-v5_default/px4_fmu-v5_default.elf
+      - uses: actions/upload-artifact@v3
+        with:
+          name: bluecube-firmware
+          path: |
+            build/cubepilot_cubeorange_default/cubepilot_cubeorange_default.px4
+            build/cubepilot_cubeorange_default/cubepilot_cubeorange_default.bin
+            build/cubepilot_cubeorange_default/cubepilot_cubeorange_default.elf
+      - uses: actions/upload-artifact@v3
+        with:
+          name: mro-h7-firmware
+          path: |
+            build/mro_ctrl-zero-h7_default/mro_ctrl-zero-h7_default.px4
+            build/mro_ctrl-zero-h7_default/mro_ctrl-zero-h7_default.bin
+            build/mro_ctrl-zero-h7_default/mro_ctrl-zero-h7_default.elf
+  clang-tidy:
+    name: clang-tidy
+    runs-on: ubuntu-20.04
+    container: ghcr.io/render-se/px4-clang:latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Run clang-tidy
+        run: |
+          make clang-tidy_secure > clang-tidy.txt
+          tar -czf clang-tidy.tar.gz clang-tidy.txt
+      - uses: actions/upload-artifact@v2
+        with:
+          name: clang-tidy
+          path: clang-tidy.tar.gz
+  cppcheck:
+    name: cppcheck
+    runs-on: ubuntu-20.04
+    container: ghcr.io/render-se/px4-nuttx:latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Run cppcheck
+        run: |
+          make cppcheck_secure
+          tar -czf cppcheck.tar.gz build/cppcheck_secure/
+      - uses: actions/upload-artifact@v2
+        with:
+          name: cppcheck
+          path: cppcheck.tar.gz
+  functional-tests:
+    name: Functional Tests
+    runs-on: ubuntu-20.04
+    container: ghcr.io/render-se/px4-base:latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Run Functional Tests
+        run: |
+          make TESTFILTER=functional tests
+          make TESTFILTER=functional tests > functional-test-results.txt 2>&1
+          tar -czf functional-tests.tar.gz functional-test-results.txt
+      - uses: actions/upload-artifact@v2
+        with:
+          name: functional-tests
+          path: functional-tests.tar.gz
+  scan-build:
+    name: scan-build
+    runs-on: ubuntu-20.04
+    container: ghcr.io/render-se/px4-clang:latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Run scan-build
+        run: |
+          make scan-build_secure
+          tar -czf scan-build.tar.gz build/scan-build/report_latest/
+      - uses: actions/upload-artifact@v2
+        with:
+          name: scan-build
+          path: scan-build.tar.gz
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-20.04
+    container: ghcr.io/render-se/px4-base:latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Run Unit Tests
+        run: |
+          make TESTFILTER=unit tests
+          make TESTFILTER=unit tests > unit-test-results.txt 2>&1
+          tar -czf unit-tests.tar.gz unit-test-results.txt
+      - uses: actions/upload-artifact@v2
+        with:
+          name: unit-tests
+          path: unit-tests.tar.gz
+  package-tests:
+    name: Package Tests
+    runs-on: ubuntu-20.04
+    needs: [clang-tidy, cppcheck, functional-tests, scan-build, unit-tests]
+    steps:
+      - uses: actions/download-artifact@v2
+      - name: Create Test Results
+        run: tar -czf test-results.tar.gz ./clang-tidy/clang-tidy.tar.gz ./cppcheck/cppcheck.tar.gz ./functional-tests/functional-tests.tar.gz ./scan-build/scan-build.tar.gz ./unit-tests/unit-tests.tar.gz
+      - uses: actions/upload-artifact@v2
+        with:
+          name: test-results
+          path: test-results.tar.gz

@@ -497,7 +497,7 @@ clang-tidy-quiet: px4_sitl_default-clang
 # TODO: Fix cppcheck errors then try --enable=warning,performance,portability,style,unusedFunction or --enable=all
 cppcheck: px4_sitl_default
 	@mkdir -p "$(SRC_DIR)"/build/cppcheck
-	@cppcheck -i"$(SRC_DIR)"/src/examples --enable=performance --std=c++14 --std=c99 --std=posix --project="$(SRC_DIR)"/build/px4_sitl_default/compile_commands.json --xml-version=2 2> "$(SRC_DIR)"/build/cppcheck/cppcheck-result.xml > /dev/null
+	@cppcheck -i"$(SRC_DIR)"/src/examples --enable=all --std=c++14 --std=c99 --std=posix --project="$(SRC_DIR)"/build/px4_sitl_default/compile_commands.json --xml-version=2 2> "$(SRC_DIR)"/build/cppcheck/cppcheck-result.xml > /dev/null
 	@cppcheck-htmlreport --source-encoding=ascii --file="$(SRC_DIR)"/build/cppcheck/cppcheck-result.xml --report-dir="$(SRC_DIR)"/build/cppcheck --source-dir="$(SRC_DIR)"/src/
 
 shellcheck_all:
@@ -538,6 +538,46 @@ distclean:
 	@git submodule deinit --force $(SRC_DIR)
 	@rm -rf "$(SRC_DIR)/build"
 	@git clean --force -X "$(SRC_DIR)/msg/" "$(SRC_DIR)/platforms/" "$(SRC_DIR)/posix-configs/" "$(SRC_DIR)/ROMFS/" "$(SRC_DIR)/src/" "$(SRC_DIR)/test/" "$(SRC_DIR)/Tools/"
+
+# Secure Builds
+# --------------------------------------------------------------------
+.PHONY: clang_secure clang-tidy_secure coverage_secure cppcheck_secure scan-build_secure tests_secure
+
+clang_secure:
+	@mkdir -p "$(SRC_DIR)"/build/clang_secure-clang
+	@cd "$(SRC_DIR)"/build/clang_secure-clang && cmake "$(SRC_DIR)" $(CMAKE_ARGS) -G"$(PX4_CMAKE_GENERATOR)" -DCONFIG=mro_sitl_default -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+	@$(PX4_MAKE) -C "$(SRC_DIR)"/build/clang_secure-clang
+
+clang-tidy_secure: clang_secure
+	@cd "$(SRC_DIR)"/build/clang_secure-clang && "$(SRC_DIR)"/Tools/run-clang-tidy.py -header-filter=".*\.hpp" -j$(j_clang_tidy) -p .
+
+cppcheck_secure: mro_ctrl-zero-h7_default
+	@mkdir -p "$(SRC_DIR)"/build/cppcheck_secure
+	@cppcheck -i"$(SRC_DIR)"/src/examples --enable=all --std=c++14 --std=c99 --std=posix --project="$(SRC_DIR)"/build/mro_ctrl-zero-h7_default/compile_commands.json --xml-version=2 2> "$(SRC_DIR)"/build/cppcheck_secure/cppcheck-result.xml > /dev/null
+	@cppcheck-htmlreport --source-encoding=utf-8 --file="$(SRC_DIR)"/build/cppcheck_secure/cppcheck-result.xml --report-dir="$(SRC_DIR)"/build/cppcheck_secure --source-dir="$(SRC_DIR)"/src/
+
+coverage_secure:
+	@$(MAKE) clean
+	@$(MAKE) --no-print-directory tests_secure PX4_CMAKE_BUILD_TYPE=Coverage
+	@mkdir -p coverage
+	@lcov --directory build/mro_sitl_test --base-directory build/mro_sitl_test --gcov-tool gcov --capture -o coverage/lcov.info
+
+scan-build_secure:
+	@export CCC_CC=clang
+	@export CCC_CXX=clang++
+	@rm -rf "$(SRC_DIR)"/build/mro_sitl_default-scan-build
+	@rm -rf "$(SRC_DIR)"/build/scan-build/report_latest
+	@mkdir -p "$(SRC_DIR)"/build/mro_sitl_default-scan-build
+	@cd "$(SRC_DIR)"/build/mro_sitl_default-scan-build && scan-build cmake "$(SRC_DIR)" -GNinja -DCONFIG=mro_sitl_default
+	@scan-build -o "$(SRC_DIR)"/build/scan-build cmake --build "$(SRC_DIR)"/build/mro_sitl_default-scan-build
+	@find "$(SRC_DIR)"/build/scan-build -maxdepth 1 -mindepth 1 -type d -exec cp -r "{}" "$(SRC_DIR)"/build/scan-build/report_latest \;
+
+tests_secure:
+	$(eval CMAKE_ARGS += -DTESTFILTER=$(TESTFILTER))
+	$(eval ARGS += test_results)
+	$(eval ASAN_OPTIONS += color=always:check_initialization_order=1:detect_stack_use_after_return=1)
+	$(eval UBSAN_OPTIONS += color=always)
+	$(call cmake-build,mro_sitl_test)
 
 # Help / Error / Misc
 # --------------------------------------------------------------------

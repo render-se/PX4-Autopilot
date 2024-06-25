@@ -384,7 +384,7 @@ endif()
 
 # optionally enable cmake testing (supported only on posix)
 option(CMAKE_TESTING "Configure test targets" OFF)
-if(${PX4_CONFIG} STREQUAL "px4_sitl_test")
+if((${PX4_CONFIG} STREQUAL "px4_sitl_test") OR (${PX4_CONFIG} STREQUAL "mro_sitl_test"))
 	set(CMAKE_TESTING ON)
 endif()
 if(CMAKE_TESTING)
