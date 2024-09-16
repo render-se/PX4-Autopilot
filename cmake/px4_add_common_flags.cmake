@@ -191,6 +191,11 @@ function(px4_add_common_flags)
 		include_directories(${PX4_BOARD_DIR}/include)
 	endif()
 
+	# Faking PX4_SITL for CONFIG_ARCH_BOARD_PX4_SITL hard define macro's
+	if("${PX4_BOARD_NAME}" STREQUAL "MRO_SITL")
+		set(PX4_BOARD_NAME "PX4_SITL")
+	endif()
+
 	add_definitions(
 		-DCONFIG_ARCH_BOARD_${PX4_BOARD_NAME}
 		-D__CUSTOM_FILE_IO__
